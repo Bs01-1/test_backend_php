@@ -7,7 +7,7 @@ class DataBase
 
     private static string $host = '';
     private static string $username = '';
-    private static string $password = '!';
+    private static string $password = '';
     private static string $dbname = '';
     private static ?\PDO $PDO = null;
     public static function Init(): void
@@ -26,7 +26,6 @@ class DataBase
         // Заполняем where
         $where_sql = '';
         if (!empty($where)) {
-            $where_sql = ' WHERE ';
             foreach ($where as $k => $values) {
                 // Добавляем OR или AND
                 if (preg_match('/^(OR|AND):(.*)/', $k, $matches)) {
@@ -36,7 +35,8 @@ class DataBase
                     $where[$k] = $values;
                     if ($where_sql !== '')
                         $where_sql .= ' '.$splitter.' ';
-                }
+                } else if ($where_sql !== '')
+                    $where_sql .= ' AND ';
 
                 // Строим IN
                 if (is_array($values)) {
@@ -54,6 +54,7 @@ class DataBase
                     $where_sql .= $k. '=:' . $k;
                 }
             }
+            $where_sql = ' WHERE '.$where_sql;
         }
         $sql = str_replace('{where}', $where_sql, $sql);
 
